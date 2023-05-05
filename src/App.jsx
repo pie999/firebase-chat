@@ -3,9 +3,10 @@ import {
   query,
   orderBy,
   limit,
+  where,
   collection,
-  addDoc,
   getDocs,
+  addDoc,
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebaseConfig";
@@ -13,24 +14,50 @@ import "./App.css";
 
 function App() {
   const [text, setText] = useState("");
+  const [newMessage, setNewMessage] = useState(null);
   const [messages, setMessages] = useState([]);
 
+  if (newMessage) {
+    setMessages([newMessage, ...messages]);
+    setNewMessage(null);
+  }
+
   useEffect(() => {
-    const q = query(
-      collection(db, "messages"),
-      orderBy("time", "desc"),
-      limit(20)
-    );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const updatedMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setMessages(updatedMessages);
-    });
-    return () => {
-      unsubscribe();
-    };
+    (async () => {
+      // Read initial 20 messages
+      const q1 = query(
+        collection(db, "messages"),
+        orderBy("time", "desc"),
+        limit(20)
+      );
+      let initialMessages = [];
+      const querySnapshot = await getDocs(q1);
+      querySnapshot.forEach((doc) => {
+        initialMessages.push({
+          id: doc.id,
+          ...doc.data(),
+        });
+      });
+      setMessages(initialMessages);
+
+      // Listen to the latest message
+      const q2 = query(
+        collection(db, "messages"),
+        where("time", ">=", Date.now()), // skip initial data read
+        orderBy("time", "desc"),
+        limit(1)
+      );
+      const unsubscribe = onSnapshot(q2, (snapshot) => {
+        const latestMessage = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setNewMessage(...latestMessage);
+      });
+      return () => {
+        unsubscribe();
+      };
+    })();
   }, []);
 
   async function sendMessage(e) {
