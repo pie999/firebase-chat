@@ -1,61 +1,66 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   query,
   orderBy,
   limit,
   collection,
-  doc,
-  onSnapshot,
-  onDisconnect,
   addDoc,
   getDocs,
+  onSnapshot,
 } from "firebase/firestore";
-import { app, db } from "./firebaseConfig";
+import { db } from "./firebaseConfig";
 import "./App.css";
 
 function App() {
-  const [message, setMessage] = useState("");
+  const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
 
-  async function sendMessage() {
-    if (message === "") return;
-    setMessage("");
+  useEffect(() => {
+    const q = query(
+      collection(db, "messages"),
+      orderBy("time", "desc"),
+      limit(20)
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const updatedMessages = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMessages(updatedMessages);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  async function sendMessage(e) {
+    e.preventDefault();
+    if (text === "") return;
+    setText("");
     try {
       const docRef = await addDoc(collection(db, "messages"), {
         time: Date.now(),
-        message: message,
+        text: text,
       });
-      console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
   }
 
-  async function updateChat() {
-    const messagesTemp = [];
-    const messagesRef = collection(db, "messages");
-    const q = query(messagesRef, orderBy("time", "desc"), limit(20));
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      messagesTemp.push(doc.data().message);
-    });
-    setMessages([...messagesTemp]);
-  }
-
   return (
     <>
-      <h1>chat bellissima di pie999 2.0</h1>
-      <div>
+      <h1>chat bellissima di pie999 3.0</h1>
+      <form onSubmit={(e) => sendMessage(e)}>
         <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="messaggio"
         ></input>
-        <button onClick={sendMessage}>invia</button>
-        <button onClick={updateChat}>aggiorna chat</button>
-      </div>
+        <button type="submit">invia</button>
+      </form>
       <div>
-        {messages.map((mess) => (
-          <p>{mess}</p>
+        {messages.map((message) => (
+          <p key={message.id}>{message.text}</p>
         ))}
       </div>
     </>
