@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   query,
   orderBy,
@@ -10,15 +10,18 @@ import {
   onSnapshot,
 } from "firebase/firestore";
 import { db } from "./firebaseConfig";
+import toReadableTime from "./timeHelper";
+import sendIcon from "./send.svg";
 import "./App.css";
 
 function App() {
   const [text, setText] = useState("");
   const [newMessage, setNewMessage] = useState(null);
   const [messages, setMessages] = useState([]);
+  const chatRef = useRef(null);
 
   if (newMessage) {
-    setMessages([newMessage, ...messages]);
+    setMessages([...messages, newMessage]);
     setNewMessage(null);
   }
 
@@ -38,6 +41,7 @@ function App() {
           ...doc.data(),
         });
       });
+      initialMessages.reverse();
       setMessages(initialMessages);
 
       // Listen to the latest message
@@ -60,7 +64,26 @@ function App() {
     })();
   }, []);
 
-  async function sendMessage(e) {
+  useEffect(() => {
+    const chatNode = chatRef.current;
+
+    const observer = new MutationObserver(() => {
+      chatNode.scrollTop = chatNode.scrollHeight;
+    });
+    observer.observe(chatNode, { childList: true });
+
+    const resizeObserver = new ResizeObserver(() => {
+      chatNode.scrollTop = chatNode.scrollHeight;
+    });
+    resizeObserver.observe(chatNode);
+
+    return () => {
+      observer.disconnect();
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  async function handleSubmit(e) {
     e.preventDefault();
     if (text === "") return;
     setText("");
@@ -76,20 +99,28 @@ function App() {
 
   return (
     <>
-      <h1>chat bellissima di pie999 3.0</h1>
-      <form onSubmit={(e) => sendMessage(e)}>
+      <div ref={chatRef} className="chat-div">
+        {messages.map((message) => (
+          <div key={message.id} className="message">
+            <p className="message-text">
+              {message.text}
+              <span className="message-time">
+                {toReadableTime(message.time)}
+              </span>
+            </p>
+          </div>
+        ))}
+      </div>
+      <form className="input-div" onSubmit={(e) => handleSubmit(e)}>
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="messaggio"
+          placeholder="scrivi un messaggio..."
         ></input>
-        <button type="submit">invia</button>
+        <button type="submit">
+          <img src={sendIcon} alt="" />
+        </button>
       </form>
-      <div>
-        {messages.map((message) => (
-          <p key={message.id}>{message.text}</p>
-        ))}
-      </div>
     </>
   );
 }
