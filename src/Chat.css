@@ -1,0 +1,93 @@
+@media (min-width: 800px) {
+  .chat-container {
+    width: 600px;
+    margin: auto;
+  }
+}
+
+.chat-div {
+  height: calc(100vh - var(--input-height));
+  overflow: scroll;
+  background-color: var(--blue-grotto);
+}
+
+.by {
+  margin: 3px;
+  text-align: center;
+  color: var(--baby_blue);
+}
+
+.by a {
+  color: var(--navy-blue);
+}
+
+.signoutbtn-container {
+  text-align: center;
+}
+
+.signoutbtn {
+  background-color: rgb(255, 134, 134);
+  border: 2px solid var(--navy-blue);
+  border-radius: 5px;
+  padding: 3px 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.message {
+  margin: 5px;
+  padding: 7px;
+  background-color: var(--blue-green);
+  width: fit-content;
+  border: 2px solid var(--navy-blue);
+  border-radius: 10px;
+}
+
+.username {
+  margin: 0;
+  color: var(--navy-blue);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.message-text {
+  font-size: 18px;
+  margin: 0px;
+}
+
+.message-time {
+  font-size: 10px;
+  color: rgb(51, 51, 51);
+  padding-left: 4px;
+}
+
+.input-div {
+  display: flex;
+  justify-content: space-between;
+  gap: 3px;
+  height: var(--input-height);
+  padding: 3px;
+  background-color: var(--blue-grotto);
+}
+
+.input-div input {
+  width: 0;
+  flex: 1;
+  font-size: 18px;
+  border-radius: 50px;
+  border: 1px solid var(--baby_blue);
+  padding: 5px 15px;
+}
+
+.input-div button {
+  padding: 0;
+  width: var(--input-height);
+  border-radius: 100%;
+  border: none;
+  background-color: var(--blue-green);
+}
+
+.send-icon {
+  height: 20px;
+}
