@@ -1,9 +1,9 @@
 function toHours(timeInMill) {
-  return Math.floor(((timeInMill / 1000) % 86400) / 3600) + 2;
+  return Math.floor((timeInMill / 3600000 + 2) % 24);
 }
 
 function toMinutes(timeInMill) {
-  return Math.floor(((timeInMill / 1000) % 3600) / 60);
+  return Math.floor((timeInMill / 60000) % 60);
 }
 
 export default function toReadableTime(timeInMill) {

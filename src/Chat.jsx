@@ -9,22 +9,34 @@ import {
   addDoc,
   onSnapshot,
 } from "firebase/firestore";
-import { db, auth } from "./firebaseConfig";
+import { db, auth, realtimeDB } from "./firebaseConfig";
 import { signOut } from "firebase/auth";
 import toReadableTime from "./timeHelper";
-import sendIcon from "./send.svg";
 import "./Chat.css";
+import { ref, onValue } from "firebase/database";
 
 export default function Chat() {
   const [text, setText] = useState("");
   const [newMessage, setNewMessage] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [presenceArr, setPresenceArr] = useState([]);
+  const [expandMenu, setExpandMenu] = useState(false);
   const chatRef = useRef(null);
 
   if (newMessage) {
     setMessages([...messages, newMessage]);
     setNewMessage(null);
   }
+
+  useEffect(() => {
+    const unsubscribe = onValue(ref(realtimeDB, "presence/"), (snapshot) => {
+      const presenceObj = snapshot.val();
+      setPresenceArr(Object.values(presenceObj));
+    });
+    return () => {
+      unsubscribe();
+    };
+  });
 
   useEffect(() => {
     (async () => {
@@ -112,16 +124,42 @@ export default function Chat() {
 
   return (
     <div className="chat-container">
+      <div className="absolute-div">
+        {expandMenu ? (
+          <div className="menu-open" onClick={() => setExpandMenu(false)}>
+            <span className="material-symbols-outlined">menu_open</span>
+            {presenceArr.map(
+              (user) =>
+                user.online && (
+                  <li key={user.id} className="online-users">
+                    {user.name}
+                  </li>
+                )
+            )}
+            <button className="signoutbtn" onClick={handleSignOut}>
+              log out
+            </button>
+          </div>
+        ) : (
+          <div className="menu-closed" onClick={() => setExpandMenu(true)}>
+            <p className="online-users">
+              {presenceArr.reduce(
+                (prev, curr) => prev + (curr.online ? 1 : 0),
+                0
+              )}{" "}
+              online{" "}
+              <span className="material-symbols-outlined hamburger-icon">
+                menu
+              </span>
+            </p>
+          </div>
+        )}
+      </div>
       <div ref={chatRef} className="chat-div">
         <p className="by">
-          made by <a href="https://github.com/pie999/firebase-chat">pie999</a>
+          chat v4.5 made by{" "}
+          <a href="https://github.com/pie999/firebase-chat">pie999</a>
         </p>
-        <div className="signoutbtn-container">
-          <button className="signoutbtn" onClick={handleSignOut}>
-            esci
-          </button>
-        </div>
-
         {messages.map((message) => (
           <div key={message.id} className="message">
             <p className="username">{message.userName}</p>
@@ -141,7 +179,7 @@ export default function Chat() {
           placeholder="scrivi un messaggio..."
         ></input>
         <button type="submit">
-          <img src={sendIcon} alt="" />
+          <span className="material-symbols-outlined send-icon">send</span>
         </button>
       </form>
     </div>

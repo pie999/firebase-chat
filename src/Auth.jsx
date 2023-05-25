@@ -1,6 +1,7 @@
 import "./Auth.css";
 import { useState } from "react";
-import { auth } from "./firebaseConfig";
+import { auth, realtimeDB } from "./firebaseConfig";
+import { ref, update } from "firebase/database";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -22,6 +23,10 @@ export default function Auth() {
       await updateProfile(auth.currentUser, { displayName: name }).catch(
         (err) => console.log(err)
       );
+      update(ref(realtimeDB, "presence/" + auth.currentUser.uid), {
+        name: auth.currentUser.displayName,
+        id: auth.currentUser.uid,
+      });
     } catch (err) {
       console.log(err);
     }

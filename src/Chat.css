@@ -5,6 +5,35 @@
   }
 }
 
+.chat-container {
+  position: relative;
+}
+
+.absolute-div {
+  position: absolute;
+  right: 0;
+  padding: 5px;
+  background-color: var(--baby_blue);
+  border-bottom: 2px solid var(--navy-blue);
+  border-left: 2px solid var(--navy-blue);
+  border-bottom-left-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.online-users {
+  margin: 5px;
+  font-size: 18px;
+  color: green;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.hamburger-icon {
+  color: black;
+}
+
 .chat-div {
   height: calc(100vh - var(--input-height));
   overflow: scroll;
@@ -12,17 +41,14 @@
 }
 
 .by {
-  margin: 3px;
-  text-align: center;
+  margin: 0px;
+  padding: 10px;
+  font-size: 18px;
   color: var(--baby_blue);
 }
 
 .by a {
   color: var(--navy-blue);
-}
-
-.signoutbtn-container {
-  text-align: center;
 }
 
 .signoutbtn {
@@ -32,6 +58,7 @@
   padding: 3px 10px;
   font-size: 15px;
   font-weight: 500;
+  margin-top: 5px;
   cursor: pointer;
 }
 
@@ -82,12 +109,12 @@
 
 .input-div button {
   padding: 0;
-  width: var(--input-height);
+  width: 44px;
   border-radius: 100%;
   border: none;
   background-color: var(--blue-green);
 }
 
 .send-icon {
-  height: 20px;
+  color: var(--navy-blue);
 }
